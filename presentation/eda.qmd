@@ -88,19 +88,19 @@ wage_data <- wage_data %>%
 ```{r}
 # Cleaned dataset version 1: Dropped occupations with any missing wage_percent_of_male values
 
-wage_data_drop <- wage_data %>%
+wage_data_complete_cases <- wage_data %>%
   group_by(occupation) %>%
   filter(!any(is.na(wage_percent_of_male))) %>%
   ungroup()
 
 setwd("/Users/annieyu/math244_project")
-write_csv(wage_data_drop, "data/wage_data_complete_cases.csv")
+write_csv(wage_data_complete_cases, "data/wage_data_complete_cases.csv")
 ```
 
 ```{r}
 # Cleaned dataset version 2: Retained all observations, computed missing wage_percent_of_male vlaues
 
-wage_data_keep <- wage_data %>%
+wage_data_imputed <- wage_data %>%
   mutate(
     wage_percent_of_male = ifelse(
       is.na(wage_percent_of_male),
@@ -111,7 +111,7 @@ wage_data_keep <- wage_data %>%
 
 setwd("/Users/annieyu/math244_project")
 # Save dataset
-write_csv(wage_data_keep, "data/wage_data_imputed.csv")
+write_csv(wage_data_imputed, "data/wage_data_imputed.csv")
 ```
 
 We saw a considerable amount of missing values in the wage_percent_of_male column of our dataset. The author of TidyTuesday noted this is because those occupations have small sample sizes in total_workers, workers_male, and workers_female. The wage_percent_of_male metric calculated from those values may be unrepresentative and was thus reported as NA.
@@ -125,41 +125,102 @@ In terms of data transformation, we created a new variable: wage_gap. It measure
 ### Data Visualization
 
 ```{r}
-# Plot 1: Distribution of wage_percent_of_male
+# Plot 1: Distribution of wage_percent_of_male (Complete-Cases)
 
-ggplot(wage_data_keep, aes(x = wage_percent_of_male)) +
-  geom_histogram(aes(y = after_stat(density)), 
-                 bins = 40, 
-                 fill = "#4472C4", 
-                 color = "white", 
+ggplot(wage_data_complete_cases, aes(x = wage_percent_of_male)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 40,
+                 fill = "#4472C4",
+                 color = "white",
                  alpha = 0.85) +
   geom_density(color = "#C00000", linewidth = 1.2) +
-  geom_vline(xintercept = 100, linetype = "dashed", 
+  geom_vline(xintercept = 100, linetype = "dashed",
              color = "black", linewidth = 0.8) +
-  geom_vline(xintercept = median(wage_data_keep$wage_percent_of_male, na.rm = TRUE),
-             linetype = "solid", color = "#C00000", linewidth = 0.8) +
-  annotate("text", x = 102, y = 0.025, 
-           label = "Full parity\n(100%)", size = 3, hjust = 0) +
-  annotate("text", 
-           x = median(wage_data_keep$wage_percent_of_male, na.rm = TRUE) - 2, 
-           y = 0.028, 
-           label = paste0("Median: ", 
-                          round(median(wage_data_keep$wage_percent_of_male, na.rm=TRUE), 1), "%"),
-           size = 3, hjust = 1, color = "#C00000") +
+  geom_vline(xintercept = median(wage_data_complete_cases$wage_percent_of_male, na.rm = TRUE),
+             color = "#C00000", linewidth = 0.8) +
+  scale_x_continuous(limits = c(0, 150)) +
+  scale_y_continuous(limits = c(0, 0.06)) +
   labs(
-    title    = "Distribution of Female-to-Male Wage Ratio Across Occupations",
-    subtitle = "Most occupations show women earning 70–100% of male wages",
-    x        = "Female Earnings as % of Male Earnings",
-    y        = "Density",
-    caption  = "Source: BLS via TidyTuesday | 2013–2016 | Excludes occupations with insufficient sample size"
+    title = "Distribution of Wage Ratio Across Occupations (Complete-Cases)",
+    x = "Female Earnings as % of Male Earnings",
+    y = "Density",
+    caption = "Source: BLS via TidyTuesday | 2013–2016 |Excludes occupations with insufficient sample size"
   ) +
-  theme_minimal(base_size = 13) +
+  theme_minimal(base_size = 13)
+  
+  
+setwd("/Users/annieyu/math244_project")
+
+# Save the figure
+ggsave("figures/plot1_wage_distribution_complete_cases.png", width = 8, height = 5, dpi = 300)
+```
+
+```{r}
+# Plot 2: Distribution of wage_percent_of_male (All Occupations)
+
+ggplot(wage_data_imputed, aes(x = wage_percent_of_male)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 bins = 40,
+                 fill = "#4472C4",
+                 color = "white",
+                 alpha = 0.85) +
+  geom_density(color = "#C00000", linewidth = 1.2) +
+  geom_vline(xintercept = 100, linetype = "dashed",
+             color = "black", linewidth = 0.8) +
+  geom_vline(xintercept = median(wage_data_imputed$wage_percent_of_male, na.rm = TRUE),
+             color = "#C00000", linewidth = 0.8) +
+  scale_x_continuous(limits = c(0, 150)) +
+  scale_y_continuous(limits = c(0, 0.06)) +
+  labs(
+    title = "Distribution of Wage Ratio Across Occupations (All Occupations)",
+    x = "Female Earnings as % of Male Earnings",
+    y = "Density",
+    caption = "Source: BLS via TidyTuesday | 2013–2016 | Includes all occupations"
+  ) +
+  theme_minimal(base_size = 13)
+
+setwd("/Users/annieyu/math244_project")
+
+# Save the figure
+ggsave("figures/plot2_wage_distribution_imputed.png", width = 8, height = 5, dpi = 300)
+```
+
+```{r}
+# Plot 3: Trend of median wage parity over time, by major_category (Complete-Cases)
+# Outcome variable (wage_percent_of_male) x time x category
+
+wage_data_complete_cases %>%
+  group_by(year, major_category) %>%
+  summarise(median_wage_pct = median(wage_percent_of_male, na.rm = TRUE),
+            .groups = "drop") %>%
+  ggplot(aes(x = year, y = median_wage_pct, 
+             color = major_category, group = major_category)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept = 100, linetype = "dashed", 
+             color = "black", alpha = 0.5) +
+  scale_x_continuous(breaks = 2013:2016) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"),
+                     limits = c(70, 110)) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title    = "Median Female-to-Male Wage Ratio by Industry Sector (2013–2016)",
+    subtitle = "Dashed line = wage parity (100%)",
+    x        = "Year",
+    y        = "Median Female Earnings as % of Male",
+    color    = "Industry Sector",
+    caption  = "Source: BLS via TidyTuesday"
+  ) +
+  theme_minimal(base_size = 12) +
   theme(
     plot.title    = element_text(face = "bold"),
     plot.subtitle = element_text(color = "gray40"),
-    plot.caption  = element_text(color = "gray50", size = 9)
+    legend.position = "right",
+    legend.text   = element_text(size = 9)
   )
 
+setwd("/Users/annieyu/math244_project")
+
 # Save the figure
-ggsave("figures/plot1_wage_distribution.png", width = 8, height = 5, dpi = 300)
+ggsave("figures/plot3_trend_by_sector.png", width = 10, height = 6, dpi = 300)
 ```
