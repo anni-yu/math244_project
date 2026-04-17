@@ -264,3 +264,75 @@ setwd("/Users/annieyu/math244_project")
 # Save the figure
 ggsave("figures/plot4_wage_ratio_trend_by_sector_imputed.png", width = 10, height = 6, dpi = 300)
 ```
+
+```{r}
+# Plot 5: Scatter — percent_female vs wage_percent_of_male (Complete-Cases)
+
+ggplot(wage_data_complete_cases, aes(x = percent_female, y = wage_percent_of_male,
+                                     color = major_category)) +
+  geom_point(alpha = 0.35, size = 1.8) +
+  geom_smooth(method = "lm", se = TRUE,
+              color = "black", linewidth = 1.2,
+              linetype = "solid") +
+  geom_hline(yintercept = 100, linetype = "dashed",
+             color = "red", alpha = 0.7) +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title    = "Occupation Feminization and Wage Parity (Complete-Cases)",
+    subtitle = "Each point = one occupation-year; black line = linear trend",
+    x        = "Percent of Workers Who Are Female",
+    y        = "Female Earnings as % of Male Earnings",
+    color    = "Industry Sector",
+    caption  = "Source: BLS via TidyTuesday | 2013–2016"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "gray40"),
+    legend.position = "right",
+    legend.text   = element_text(size = 8)
+  )
+
+setwd("/Users/annieyu/math244_project")
+
+# Save the figure
+ggsave("figures/plot5_feminization_scatter_complete_cases.png", width = 9, height = 6, dpi = 300)
+```
+
+```{r}
+# Plot 6: Scatter — percent_female vs wage_percent_of_male (All Occupations)
+
+ggplot(wage_data_imputed, aes(x = percent_female, y = wage_percent_of_male,
+                                     color = major_category)) +
+  geom_point(alpha = 0.35, size = 1.8) +
+  geom_smooth(method = "lm", se = TRUE,
+              color = "black", linewidth = 1.2,
+              linetype = "solid") +
+  geom_hline(yintercept = 100, linetype = "dashed",
+             color = "red", alpha = 0.7) +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title    = "Occupation Feminization and Wage Parity (All Occupations)",
+    subtitle = "Each point = one occupation-year; black line = linear trend",
+    x        = "Percent of Workers Who Are Female",
+    y        = "Female Earnings as % of Male Earnings",
+    color    = "Industry Sector",
+    caption  = "Source: BLS via TidyTuesday | 2013–2016"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "gray40"),
+    legend.position = "right",
+    legend.text   = element_text(size = 8)
+  )
+
+setwd("/Users/annieyu/math244_project")
+
+# Save the figure
+ggsave("figures/plot6_feminization_scatter_imputed.png", width = 9, height = 6, dpi = 300)
+```
