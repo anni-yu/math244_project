@@ -123,6 +123,32 @@ In the other, we retained these observations, as occupations with small workforc
 
 In terms of data transformation, we created a new variable: wage_gap. It measures the dollar difference between the male and female median earnings (male minus female). This variable captures the magnitude of the wage disparity in absolute terms and complements the percentage-based measure.
 
+### Codebook
+
+```{r}
+
+codebook <- tribble(
+  ~variable, ~class, ~description,
+  "year", "integer", "Year",
+  "occupation", "character", "Specific job/career",
+  "major_category", "character", "Broad category of occupation",
+  "minor_category", "character", "Fine category of occupation",
+  "total_workers", "double", "Total estimated full-time workers > 16 years old",
+  "workers_male", "double", "Estimated MALE full-time workers > 16 years old",
+  "workers_female", "double", "Estimated FEMALE full-time workers > 16 years old",
+  "percent_female", "double", "Percent of females in occupation",
+  "total_earnings", "double", "Median earnings for all workers",
+  "total_earnings_male", "double", "Median earnings for male workers",
+  "total_earnings_female", "double", "Median earnings for female workers",
+  "wage_percent_of_male", "double", "Female earnings as % of male earnings",
+  "wage_gap", "double", "Difference between male and female median earnings"
+)
+
+codebook %>%
+  kable(caption = "Data Dictionary") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
 ### Data Visualization
 
 ```{r}
