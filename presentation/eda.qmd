@@ -77,3 +77,38 @@ wages_selected %>%
 ```
 
 ### Data Wrangling and Transformation
+
+```{r}
+# Drop occupations with any missing wage_percent_of_male values
+wage_data_drop <- wage_data %>%
+  group_by(occupation) %>%
+  filter(!any(is.na(wage_percent_of_male))) %>%
+  ungroup()
+```
+
+```{r}
+# Retain all observations, compute missing wage_percent_of_male vlaues
+wage_data_keep <- wage_data %>%
+  mutate(
+    wage_percent_of_male = ifelse(
+      is.na(wage_percent_of_male),
+      (total_earnings_female / total_earnings_male) * 100,
+      wage_percent_of_male
+    )
+  )
+```
+
+We saw a considerable amount of missing values in the wage_percent_of_male column of our dataset. The author of TidyTuesday noted this is because those occupations have small sample sizes in total_workers, workers_male, and workers_female. The wage_percent_of_male metric calculated from those values may be unrepresentative and was thus reported as NA.
+
+To address this, we conducted two separate analyses. In one version, we drop all observation with NA wage_percent_of_male values, and also filter out all observation of that same occupation across other years for better reliability and consistency for our time-series analysis.
+
+In the other, we retained these observations, as occupations with small workforce sizes or extreme gender composition may actually capture insightful patterns. For this set of analysis, we recomputed the NA wage_percent_of_male values using the total_earnings_male and total_earnings_female columns.
+
+```{r}
+#Create new variable: wage_gap
+wage_data <- wage_data %>%
+  mutate(wage_gap = total_earnings_male - total_earnings_female)
+    
+```
+
+In terms of data stransformation, we created a new variable: wage_gap. It measures the dollar difference between the male and female median earnings (male minus female). This variable captures the magnitude of the wage disparity in absolute terms and complements the percentage-based measure.
