@@ -19,7 +19,7 @@ library(scales)
 
 ```{r}
 setwd("/Users/annieyu/math244_project")
-wage_data <- read_csv("data/jobs_gender_raw.csv")
+wage_data <- read_csv("data/wage_data_raw.csv")
 ```
 
 ### Exploring the Data
@@ -79,15 +79,27 @@ wages_selected %>%
 ### Data Wrangling and Transformation
 
 ```{r}
-# Drop occupations with any missing wage_percent_of_male values
+#Create a new variable: wage_gap
+wage_data <- wage_data %>%
+  mutate(wage_gap = total_earnings_male - total_earnings_female)
+    
+```
+
+```{r}
+# Cleaned dataset version 1: Dropped occupations with any missing wage_percent_of_male values
+
 wage_data_drop <- wage_data %>%
   group_by(occupation) %>%
   filter(!any(is.na(wage_percent_of_male))) %>%
   ungroup()
+
+setwd("/Users/annieyu/math244_project")
+write_csv(wage_data_drop, "data/wage_data_complete_cases.csv")
 ```
 
 ```{r}
-# Retain all observations, compute missing wage_percent_of_male vlaues
+# Cleaned dataset version 2: Retained all observations, computed missing wage_percent_of_male vlaues
+
 wage_data_keep <- wage_data %>%
   mutate(
     wage_percent_of_male = ifelse(
@@ -96,6 +108,10 @@ wage_data_keep <- wage_data %>%
       wage_percent_of_male
     )
   )
+
+setwd("/Users/annieyu/math244_project")
+# Save dataset
+write_csv(wage_data_keep, "data/wage_data_imputed.csv")
 ```
 
 We saw a considerable amount of missing values in the wage_percent_of_male column of our dataset. The author of TidyTuesday noted this is because those occupations have small sample sizes in total_workers, workers_male, and workers_female. The wage_percent_of_male metric calculated from those values may be unrepresentative and was thus reported as NA.
@@ -104,11 +120,46 @@ To address this, we conducted two separate analyses. In one version, we drop all
 
 In the other, we retained these observations, as occupations with small workforce sizes or extreme gender composition may actually capture insightful patterns. For this set of analysis, we recomputed the NA wage_percent_of_male values using the total_earnings_male and total_earnings_female columns.
 
-```{r}
-#Create new variable: wage_gap
-wage_data <- wage_data %>%
-  mutate(wage_gap = total_earnings_male - total_earnings_female)
-    
-```
+In terms of data transformation, we created a new variable: wage_gap. It measures the dollar difference between the male and female median earnings (male minus female). This variable captures the magnitude of the wage disparity in absolute terms and complements the percentage-based measure.
 
-In terms of data stransformation, we created a new variable: wage_gap. It measures the dollar difference between the male and female median earnings (male minus female). This variable captures the magnitude of the wage disparity in absolute terms and complements the percentage-based measure.
+### Data Visualization
+
+```{r}
+# Plot 1: Distribution of wage_percent_of_male
+
+ggplot(wage_data_keep, aes(x = wage_percent_of_male)) +
+  geom_histogram(aes(y = after_stat(density)), 
+                 bins = 40, 
+                 fill = "#4472C4", 
+                 color = "white", 
+                 alpha = 0.85) +
+  geom_density(color = "#C00000", linewidth = 1.2) +
+  geom_vline(xintercept = 100, linetype = "dashed", 
+             color = "black", linewidth = 0.8) +
+  geom_vline(xintercept = median(wage_data_keep$wage_percent_of_male, na.rm = TRUE),
+             linetype = "solid", color = "#C00000", linewidth = 0.8) +
+  annotate("text", x = 102, y = 0.025, 
+           label = "Full parity\n(100%)", size = 3, hjust = 0) +
+  annotate("text", 
+           x = median(wage_data_keep$wage_percent_of_male, na.rm = TRUE) - 2, 
+           y = 0.028, 
+           label = paste0("Median: ", 
+                          round(median(wage_data_keep$wage_percent_of_male, na.rm=TRUE), 1), "%"),
+           size = 3, hjust = 1, color = "#C00000") +
+  labs(
+    title    = "Distribution of Female-to-Male Wage Ratio Across Occupations",
+    subtitle = "Most occupations show women earning 70–100% of male wages",
+    x        = "Female Earnings as % of Male Earnings",
+    y        = "Density",
+    caption  = "Source: BLS via TidyTuesday | 2013–2016 | Excludes occupations with insufficient sample size"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "gray40"),
+    plot.caption  = element_text(color = "gray50", size = 9)
+  )
+
+# Save the figure
+ggsave("figures/plot1_wage_distribution.png", width = 8, height = 5, dpi = 300)
+```
