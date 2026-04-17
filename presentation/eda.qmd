@@ -365,3 +365,7 @@ setwd("/Users/annieyu/math244_project")
 # Save the figure
 ggsave("figures/plot6_feminization_scatter_imputed.png", width = 7, height = 6, dpi = 300)
 ```
+
+### Data Analysis
+
+Next, we can apply machine learning techniques, such as PCA, to reveal underlying patterns across occupations. Clustering methods such as k-means could be used to group occupations into categories based on similarities in wage structures and gender composition. It can help identify whether there is a better way to cluster occupations than the given major and minor categories we have. We'll also use regression models with interaction terms, which can help us examine relationships between gender composition and wage differences across industries.
