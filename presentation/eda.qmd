@@ -24,7 +24,9 @@ wage_data <- read_csv("data/jobs_gender_raw.csv")
 
 ### Exploring the Data
 
-Our primary outcome variable is wage_percent_of_male, which measures female median earnings as a percentage of male median earnings. A value of 100 would indicate perfect parity; values below 100 indicate women earn less than men. This variable is a direct measure of the gender wage gap at the occupation level, and allows us to analyze relative disparity than raw income difference. We expect this variable to generally fall below 100 for most occupations.
+dollar difference between male and female median earnings. This variable captures the raw income disparity and allows us to examine the magnitude of the earnings gap. We expect this value to be generally positive, indicating men have a higher median earnings across most occupations.
+
+A second outcome variable we are using, wage_percent_of_male, is included in our dataset. It measures female median earnings as a percentage of male median earnings. A value of 100 would indicate perfect parity; values below 100 indicate women earn less than men. This variable allows us to analyze relative disparity. We expect this variable to generally fall below 100 for most occupations.
 
 Our key explanatory variables are:
 
@@ -51,9 +53,9 @@ wages_selected <- wage_data %>%
 ```
 
 ```{r}
-# Summary table of numeric variables
+# Summary table of numeric variables (except year)
 wages_selected %>%
-  select(where(is.numeric)) %>%
+  select(where(is.numeric), -year) %>%
   summarise(across(everything(),
     list(
       N = ~sum(!is.na(.)),
@@ -73,3 +75,5 @@ wages_selected %>%
   kable(caption = "Table 1: Summary Statistics for Key Variables") %>%
   kable_styling(bootstrap_options = "striped", full_width = FALSE)
 ```
+
+### Data Wrangling and Transformation
