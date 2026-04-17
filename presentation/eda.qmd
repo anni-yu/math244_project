@@ -144,7 +144,7 @@ ggplot(wage_data_complete_cases, aes(x = wage_percent_of_male)) +
     title = "Distribution of Wage Ratio Across Occupations (Complete-Cases)",
     x = "Female Earnings as % of Male Earnings",
     y = "Density",
-    caption = "Source: BLS via TidyTuesday | 2013–2016 |Excludes occupations with insufficient sample size"
+    caption = "Source: BLS via TidyTuesday | 2013–2016"
   ) +
   theme_minimal(base_size = 13)
   
@@ -152,7 +152,7 @@ ggplot(wage_data_complete_cases, aes(x = wage_percent_of_male)) +
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot1_wage_distribution_complete_cases.png", width = 8, height = 5, dpi = 300)
+ggsave("figures/plot1_wage_ratio_distribution_complete_cases.png", width = 8, height = 5, dpi = 300)
 ```
 
 ```{r}
@@ -175,14 +175,14 @@ ggplot(wage_data_imputed, aes(x = wage_percent_of_male)) +
     title = "Distribution of Wage Ratio Across Occupations (All Occupations)",
     x = "Female Earnings as % of Male Earnings",
     y = "Density",
-    caption = "Source: BLS via TidyTuesday | 2013–2016 | Includes all occupations"
+    caption = "Source: BLS via TidyTuesday | 2013–2016 "
   ) +
   theme_minimal(base_size = 13)
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot2_wage_distribution_imputed.png", width = 8, height = 5, dpi = 300)
+ggsave("figures/plot2_wage_ratio_distribution_imputed.png", width = 8, height = 5, dpi = 300)
 ```
 
 ```{r}
@@ -204,12 +204,12 @@ wage_data_complete_cases %>%
                      limits = c(70, 110)) +
   scale_color_brewer(palette = "Set2") +
   labs(
-    title    = "Median Female-to-Male Wage Ratio by Industry Sector (2013–2016)",
+    title    = "Wage Ratio by Industry Sector (Complete-Cases)",
     subtitle = "Dashed line = wage parity (100%)",
     x        = "Year",
     y        = "Median Female Earnings as % of Male",
     color    = "Industry Sector",
-    caption  = "Source: BLS via TidyTuesday"
+    caption  = "Source: BLS via TidyTuesday | 2013–2016"
   ) +
   theme_minimal(base_size = 12) +
   theme(
@@ -222,5 +222,45 @@ wage_data_complete_cases %>%
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot3_trend_by_sector.png", width = 10, height = 6, dpi = 300)
+ggsave("figures/plot3_wage_ratio_trend_by_sector_complete_cases.png", width = 10, height = 6, dpi = 300)
+```
+
+```{r}
+# Plot 4: Trend of median wage parity over time, by major_category (All Occupations)
+# Outcome variable (wage_percent_of_male) x time x category
+
+wage_data_imputed %>%
+  group_by(year, major_category) %>%
+  summarise(median_wage_pct = median(wage_percent_of_male, na.rm = TRUE),
+            .groups = "drop") %>%
+  ggplot(aes(x = year, y = median_wage_pct, 
+             color = major_category, group = major_category)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept = 100, linetype = "dashed", 
+             color = "black", alpha = 0.5) +
+  scale_x_continuous(breaks = 2013:2016) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"),
+                     limits = c(70, 110)) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title    = "Wage Ratio by Industry Sector (All Occupations)",
+    subtitle = "Dashed line = wage parity (100%)",
+    x        = "Year",
+    y        = "Median Female Earnings as % of Male",
+    color    = "Industry Sector",
+    caption  = "Source: BLS via TidyTuesday | 2013–2016"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "gray40"),
+    legend.position = "right",
+    legend.text   = element_text(size = 9)
+  )
+
+setwd("/Users/annieyu/math244_project")
+
+# Save the figure
+ggsave("figures/plot4_wage_ratio_trend_by_sector_imputed.png", width = 10, height = 6, dpi = 300)
 ```
