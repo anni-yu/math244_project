@@ -1,7 +1,75 @@
 ---
 title: "eda"
+author: "Anni and Daniel"
 format: html
 editor: visual
+execute:
+  warning: false
+  message: false
+  echo: true
 ---
 
-## 
+```{r}
+library(tidyverse)   
+library(skimr)       
+library(knitr)      
+library(kableExtra)  
+library(scales)      
+```
+
+```{r}
+setwd("/Users/annieyu/math244_project")
+wage_data <- read_csv("data/jobs_gender_raw.csv")
+```
+
+### Exploring the Data
+
+Our primary outcome variable is wage_percent_of_male, which measures female median earnings as a percentage of male median earnings. A value of 100 would indicate perfect parity; values below 100 indicate women earn less than men. This variable is a direct measure of the gender wage gap at the occupation level, and allows us to analyze relative disparity than raw income difference. We expect this variable to generally fall below 100 for most occupations.
+
+Our key explanatory variables are:
+
+-percent_female: The percent of females for specific occupation
+
+-total_workers: Total estimated full-time workers \> 16 years old
+
+-major_category: Broad category of occupation
+
+-minor_category: Fine category of occupation
+
+-occupation: Specific job/career
+
+-year: years from 2013-2016
+
+```{r}
+#Select the variables we plan to use
+wages_selected <- wage_data %>%
+  select(wage_percent_of_male, percent_female, 
+        year, major_category, minor_category,
+        percent_female, total_workers, 
+        major_category, minor_category, 
+        occupation, year)
+```
+
+```{r}
+# Summary table of numeric variables
+wages_selected %>%
+  select(where(is.numeric)) %>%
+  summarise(across(everything(),
+    list(
+      N = ~sum(!is.na(.)),
+      Mean = ~round(mean(., na.rm = TRUE), 1),
+      SD = ~round(sd(., na.rm = TRUE), 1),
+      Min = ~round(min(., na.rm = TRUE), 1),
+      Median = ~round(median(., na.rm = TRUE), 1),
+      Max = ~round(max(., na.rm = TRUE), 1)
+    )
+  )) %>%
+  pivot_longer(
+    everything(),
+    names_to = c("Variable", "Statistic"),
+    names_pattern = "(.*)_(.*)"
+  ) %>%
+  pivot_wider(names_from = Statistic, values_from = value) %>%
+  kable(caption = "Table 1: Summary Statistics for Key Variables") %>%
+  kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
