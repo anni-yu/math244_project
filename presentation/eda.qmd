@@ -1,7 +1,8 @@
 ---
-title: "eda"
+title: "EDA"
 author: "Anni and Daniel"
-format: html
+format: pdf
+geometry: margin=0.7in
 editor: visual
 execute:
   warning: false
@@ -14,7 +15,7 @@ library(tidyverse)
 library(skimr)       
 library(knitr)      
 library(kableExtra)  
-library(scales)      
+library(scales)     
 ```
 
 ```{r}
@@ -24,7 +25,7 @@ wage_data <- read_csv("data/wage_data_raw.csv")
 
 ### Exploring the Data
 
-dollar difference between male and female median earnings. This variable captures the raw income disparity and allows us to examine the magnitude of the earnings gap. We expect this value to be generally positive, indicating men have a higher median earnings across most occupations.
+One of our outcome variable which we created is wage_gap, calcualted as the dollar difference between male and female median earnings. This variable captures the raw income disparity and allows us to examine the magnitude of the earnings gap. We expect this value to be generally positive, indicating men have a higher median earnings across most occupations.
 
 A second outcome variable we are using, wage_percent_of_male, is included in our dataset. It measures female median earnings as a percentage of male median earnings. A value of 100 would indicate perfect parity; values below 100 indicate women earn less than men. This variable allows us to analyze relative disparity. We expect this variable to generally fall below 100 for most occupations.
 
@@ -146,13 +147,19 @@ ggplot(wage_data_complete_cases, aes(x = wage_percent_of_male)) +
     y = "Density",
     caption = "Source: BLS via TidyTuesday | 2013–2016"
   ) +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 13)+
+theme(
+  plot.title = element_text(size = 10),
+  axis.text = element_text(size = 9),
+  axis.title = element_text(size = 9),
+  plot.caption = element_text(size = 8)
+)
   
   
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot1_wage_ratio_distribution_complete_cases.png", width = 8, height = 5, dpi = 300)
+ggsave("figures/plot1_wage_ratio_distribution_complete_cases.png", width = 7, height = 5, dpi = 300)
 ```
 
 ```{r}
@@ -177,17 +184,23 @@ ggplot(wage_data_imputed, aes(x = wage_percent_of_male)) +
     y = "Density",
     caption = "Source: BLS via TidyTuesday | 2013–2016 "
   ) +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 13)+
+theme(
+  plot.title = element_text(size = 10),
+  axis.text = element_text(size = 9),
+  axis.title = element_text(size = 9),
+  plot.caption = element_text(size = 8)
+)
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot2_wage_ratio_distribution_imputed.png", width = 8, height = 5, dpi = 300)
+ggsave("figures/plot2_wage_ratio_distribution_imputed.png", width = 7, height = 5, dpi = 300)
+
 ```
 
 ```{r}
 # Plot 3: Trend of median wage parity over time, by major_category (Complete-Cases)
-# Outcome variable (wage_percent_of_male) x time x category
 
 wage_data_complete_cases %>%
   group_by(year, major_category) %>%
@@ -211,18 +224,22 @@ wage_data_complete_cases %>%
     color    = "Industry Sector",
     caption  = "Source: BLS via TidyTuesday | 2013–2016"
   ) +
-  theme_minimal(base_size = 12) +
+ theme_minimal(base_size = 12) +
   theme(
-    plot.title    = element_text(face = "bold"),
-    plot.subtitle = element_text(color = "gray40"),
-    legend.position = "right",
-    legend.text   = element_text(size = 9)
+    plot.title     = element_text(face = "bold", size = 10),
+    plot.subtitle  = element_text(size = 9, color = "gray40"),
+    axis.text      = element_text(size = 9),
+    axis.title     = element_text(size = 9),
+    legend.text    = element_text(size = 9),
+    legend.title   = element_text(size = 9),
+    plot.caption   = element_text(size = 8),
+    legend.position = "right"
   )
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot3_wage_ratio_trend_by_sector_complete_cases.png", width = 10, height = 6, dpi = 300)
+ggsave("figures/plot3_wage_ratio_trend_by_sector_complete_cases.png", width = 7, height = 6, dpi = 300)
 ```
 
 ```{r}
@@ -253,16 +270,20 @@ wage_data_imputed %>%
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    plot.title    = element_text(face = "bold"),
-    plot.subtitle = element_text(color = "gray40"),
-    legend.position = "right",
-    legend.text   = element_text(size = 9)
+    plot.title     = element_text(face = "bold", size = 10),
+    plot.subtitle  = element_text(size = 9, color = "gray40"),
+    axis.text      = element_text(size = 9),
+    axis.title     = element_text(size = 9),
+    legend.text    = element_text(size = 9),
+    legend.title   = element_text(size = 9),
+    plot.caption   = element_text(size = 8),
+    legend.position = "right"
   )
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot4_wage_ratio_trend_by_sector_imputed.png", width = 10, height = 6, dpi = 300)
+ggsave("figures/plot4_wage_ratio_trend_by_sector_imputed.png", width = 7, height = 6, dpi = 300)
 ```
 
 ```{r}
@@ -289,16 +310,20 @@ ggplot(wage_data_complete_cases, aes(x = percent_female, y = wage_percent_of_mal
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    plot.title    = element_text(face = "bold"),
-    plot.subtitle = element_text(color = "gray40"),
-    legend.position = "right",
-    legend.text   = element_text(size = 8)
+    plot.title     = element_text(face = "bold", size = 10),
+    plot.subtitle  = element_text(size = 9, color = "gray40"),
+    axis.text      = element_text(size = 9),
+    axis.title     = element_text(size = 9),
+    legend.text    = element_text(size = 9),
+    legend.title   = element_text(size = 9),
+    plot.caption   = element_text(size = 8),
+    legend.position = "right"
   )
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot5_feminization_scatter_complete_cases.png", width = 9, height = 6, dpi = 300)
+ggsave("figures/plot5_feminization_scatter_complete_cases.png", width = 7, height = 6, dpi = 300)
 ```
 
 ```{r}
@@ -325,14 +350,18 @@ ggplot(wage_data_imputed, aes(x = percent_female, y = wage_percent_of_male,
   ) +
   theme_minimal(base_size = 12) +
   theme(
-    plot.title    = element_text(face = "bold"),
-    plot.subtitle = element_text(color = "gray40"),
-    legend.position = "right",
-    legend.text   = element_text(size = 8)
+    plot.title     = element_text(face = "bold", size = 10),
+    plot.subtitle  = element_text(size = 9, color = "gray40"),
+    axis.text      = element_text(size = 9),
+    axis.title     = element_text(size = 9),
+    legend.text    = element_text(size = 9),
+    legend.title   = element_text(size = 9),
+    plot.caption   = element_text(size = 8),
+    legend.position = "right"
   )
 
 setwd("/Users/annieyu/math244_project")
 
 # Save the figure
-ggsave("figures/plot6_feminization_scatter_imputed.png", width = 9, height = 6, dpi = 300)
+ggsave("figures/plot6_feminization_scatter_imputed.png", width = 7, height = 6, dpi = 300)
 ```
