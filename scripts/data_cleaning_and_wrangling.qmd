@@ -1,0 +1,40 @@
+---
+title: "data_cleaning_and wrangling"
+format: html
+---
+
+```{r}
+#Create a new variable: wage_gap
+wage_data <- wage_data %>%
+  mutate(wage_gap = total_earnings_male - total_earnings_female)
+    
+```
+
+```{r}
+# Cleaned dataset version 1: Dropped occupations with any missing wage_percent_of_male values
+
+wage_data_complete_cases <- wage_data %>%
+  group_by(occupation) %>%
+  filter(!any(is.na(wage_percent_of_male))) %>%
+  ungroup()
+
+setwd("/Users/annieyu/math244_project")
+write_csv(wage_data_complete_cases, "data/wage_data_complete_cases.csv")
+```
+
+```{r}
+wage_data_imputed <- wage_data %>%
+  mutate(
+    wage_percent_of_male = ifelse(
+      is.na(wage_percent_of_male),
+      (total_earnings_female / total_earnings_male) * 100,
+      wage_percent_of_male
+    )
+  )
+
+setwd("/Users/annieyu/math244_project")
+# Save dataset
+write_csv(wage_data_imputed, "data/wage_data_imputed.csv")
+```
+
+
