@@ -91,7 +91,7 @@ We ran **all key analyses on both** and compared results for robustness.
 
 ## Summary Statistics
 
-## ![](images/clipboard-241336067.png)
+![](images/summary_stats.png)
 
 -   Median `wage_percent_of_male` ≈ **84%** — women earn roughly 84 cents per male dollar across occupations
 -   Median `wage_gap` ≈ **\$8,600** in annual earnings
@@ -163,7 +163,7 @@ To discover **natural groupings** of occupations beyond the predefined industry 
 **Results:** \[Insert k and cluster interpretation after running — e.g.:\]
 
 | Cluster | Profile | Example Occupations |
-|----------------|-------------------------------|-------------------------|
+|------------------|------------------------------|------------------------|
 | 1 | High feminization, small wage gap | Office and Administrative Support |
 | 2 | Low feminization, small wage gap | \- |
 | 3 | Mixed composition, high wage gap | \- |
