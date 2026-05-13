@@ -23,6 +23,8 @@ write_csv(wage_data_complete_cases, "data/wage_data_complete_cases.csv")
 ```
 
 ```{r}
+# Cleaned dataset version 2: Keep all occupations and impute missing wage_percent_of_male values
+
 wage_data_imputed <- wage_data %>%
   mutate(
     wage_percent_of_male = ifelse(
