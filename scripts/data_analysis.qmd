@@ -4,7 +4,7 @@ format: html
 ---
 
 ```{r}
-# Linear regression of wage parity on percent female, occupation size, year fixed effects, and occupation category
+# Linear regression of wage parity on percent female, occupation size, year fixed effects, and major occupation category
 
 library(modelsummary)
 
