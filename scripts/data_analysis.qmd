@@ -3,3 +3,136 @@ title: "data_analysis"
 format: html
 ---
 
+```{r}
+# Linear regression of wage parity on percent female, occupation size, year fixed effects, and occupation category
+
+library(modelsummary)
+
+Linear_regression <- lm(
+  wage_percent_of_male ~ percent_female +
+    log(total_workers) +
+    factor(year) +
+    major_category,
+  data = wage_data_complete_cases
+)
+
+modelsummary(
+  Linear_regression,
+ 
+  statistic = "std.error",
+ 
+  stars = TRUE,
+  fmt = 3,
+  title = "Model 1: Determinants of Wage Parity",
+ 
+  coef_rename = c(
+    "(Intercept)" = "Intercept",
+    "percent_female" = "Percent Female",
+    "log(total_workers)" = "Log(Total Workers)",
+    "factor(year)2013" = "Year: 2013",
+    "factor(year)2014" = "Year: 2014",
+    "factor(year)2015" = "Year: 2015",
+    "factor(year)2016" = "Year: 2016",
+   
+    "major_categoryEducation, Legal, Community Service, Arts, and Media" =
+      "Education / Arts / Media",
+   
+    "major_categoryHealthcare Practitioners and Technical" =
+      "Healthcare",
+   
+    "major_categoryManagement, Business, and Financial" =
+      "Management & Business",
+   
+    "major_categoryNatural Resources, Construction, and Maintenance" =
+      "Construction & Maintenance",
+   
+    "major_categoryProduction, Transportation, and Material Moving" =
+      "Production & Transport",
+   
+    "major_categorySales and Office" =
+      "Sales & Office",
+   
+    "major_categoryService" =
+      "Service Occupations"
+  )
+)
+```
+
+```{r}
+# Fit cross-validated Lasso and Ridge regressions to predict wage parity
+
+library(glmnet)
+# Set seed so the train/test split can be reproduced
+set.seed(123)
+
+# Create an 80/20 train-test split
+train_idx <- sample(1:nrow(wage_data_complete_cases), 0.8 * nrow(wage_data_complete_cases))
+
+train <- wage_data_complete_cases[train_idx, ]
+test  <- wage_data_complete_cases[-train_idx, ]
+
+# Create model matrices for glmnet
+# Outcome: female earnings as a percentage of male earnings
+# Predictors: percent female, total workers, major occupation category, and year
+x_train <- model.matrix(
+  wage_percent_of_male ~ percent_female + total_workers + major_category + year,
+  data = train
+)[, -1]
+
+y_train <- train$wage_percent_of_male
+
+x_test <- model.matrix(
+  wage_percent_of_male ~ percent_female + total_workers + major_category + year,
+  data = test)[, -1]
+
+y_test <- test$wage_percent_of_male
+
+# Fit Lasso model using cross-validation
+# alpha = 1 means Lasso
+lasso_model <- cv.glmnet(x_train, y_train, alpha = 1)
+
+# Fit Ridge model using cross-validation
+# alpha = 0 means Ridge
+ridge_model <- cv.glmnet(x_train, y_train, alpha = 0)
+
+# Generate predictions on the test set
+lasso_pred <- predict(lasso_model, s = "lambda.min", newx = x_test)
+ridge_pred <- predict(ridge_model, s = "lambda.min", newx = x_test)
+
+# Calculate model performance: MSE and R-squared
+lasso_mse <- mean((y_test - lasso_pred)^2)
+lasso_r2 <- 1 - sum((y_test - lasso_pred)^2) / sum((y_test - mean(y_test))^2)
+
+ridge_mse <- mean((y_test - ridge_pred)^2)
+ridge_r2 <- 1 - sum((y_test - ridge_pred)^2) / sum((y_test - mean(y_test))^2)
+
+# Create a clean results table
+model_results <- tibble(
+  Model = c("Lasso", "Ridge"),
+  MSE = c(lasso_mse, ridge_mse),
+  R_squared = c(lasso_r2, ridge_r2)
+)
+
+model_results
+```
+
+```{r}
+# K-means clustering on scaled percent female and wage parity
+
+kmeans_data <- wage_data_complete_cases  %>%
+  select(percent_female, wage_percent_of_male) %>%
+  drop_na()
+
+scaled_data <- scale(kmeans_data)
+
+set.seed(123)
+kmeans_model <- kmeans(scaled_data, centers = 3, nstart = 25)
+
+wage_data_complete_cases $cluster <- NA
+wage_data_complete_cases $cluster[complete.cases(kmeans_data)] <- kmeans_model$cluster
+
+ggplot(wage_data_complete_cases , aes(x = percent_female, y = wage_percent_of_male, color = factor(cluster))) +
+  geom_point(alpha = 0.5) +
+  labs(color = "Cluster")
+
+```
