@@ -1,2 +1,2 @@
 # Presentation Folder
-This folder contains written reports.
+This folder contains our eda report, final report, and slides.
