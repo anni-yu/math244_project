@@ -50,7 +50,7 @@ wages_selected <- wage_data %>%
         year, major_category, minor_category,
         percent_female, total_workers, 
         major_category, minor_category, 
-        occupation, year)
+        occupation, year, wage_gap)
 ```
 
 ```{r}
@@ -266,6 +266,8 @@ setwd("/Users/annieyu/math244_project")
 
 # Save the figure
 ggsave("figures/plot3_wage_ratio_trend_by_sector_complete_cases.png", width = 7, height = 6, dpi = 300)
+
+
 ```
 
 ```{r}
@@ -392,6 +394,62 @@ setwd("/Users/annieyu/math244_project")
 ggsave("figures/plot6_feminization_scatter_imputed.png", width = 7, height = 6, dpi = 300)
 ```
 
-### Data Analysis
+### Inference and Modeling
 
-Next, we can apply machine learning techniques, such as PCA, to reveal underlying patterns across occupations. Clustering methods such as k-means could be used to group occupations into categories based on similarities in wage structures and gender composition. It can help identify whether there is a better way to cluster occupations than the given major and minor categories we have. We'll also use regression models with interaction terms, which can help us examine relationships between gender composition and wage differences across industries.
+```{r}
+# Linear regression
+
+library(modelsummary)
+
+Linear_regression <- lm(
+  wage_percent_of_male ~ percent_female +
+    log(total_workers) +
+    factor(year) +
+    major_category,
+  data = wage_data_complete_cases
+)
+
+modelsummary(
+  Linear_regression,
+  
+  statistic = "std.error",
+  
+  stars = TRUE,
+  fmt = 3,
+  title = "Model 1: Determinants of Wage Parity",
+  
+  coef_rename = c(
+    "(Intercept)" = "Intercept",
+    "percent_female" = "Percent Female",
+    "log(total_workers)" = "Log(Total Workers)",
+    "factor(year)2013" = "Year: 2013",
+    "factor(year)2014" = "Year: 2014",
+    "factor(year)2015" = "Year: 2015",
+    "factor(year)2016" = "Year: 2016",
+    
+    "major_categoryEducation, Legal, Community Service, Arts, and Media" =
+      "Education / Arts / Media",
+    
+    "major_categoryHealthcare Practitioners and Technical" =
+      "Healthcare",
+    
+    "major_categoryManagement, Business, and Financial" =
+      "Management & Business",
+    
+    "major_categoryNatural Resources, Construction, and Maintenance" =
+      "Construction & Maintenance",
+    
+    "major_categoryProduction, Transportation, and Material Moving" =
+      "Production & Transport",
+    
+    "major_categorySales and Office" =
+      "Sales & Office",
+    
+    "major_categoryService" =
+      "Service Occupations"
+  )
+)
+```
+
+```{r}
+```
