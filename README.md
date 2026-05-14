@@ -1,2 +1,1 @@
-Math 244 Project.
-We plan to examine the relationship between occupational gender composition and median earnings to identify where wage gaps exist and how these disparities evolve over time.
+This project analyzes occupational variation in the gender wage gap using data from the Bureau of Labor Statistics (BLS). The analysis examines how workforce gender composition, occupation categories, and workforce size relate to wage disparities across occupations.
